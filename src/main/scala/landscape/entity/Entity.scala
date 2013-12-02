@@ -9,12 +9,12 @@ import com.eaio.uuid.UUID
  * Time: 22:04
  * To change this template use File | Settings | File Templates.
  */
-trait Entity[T] {
+trait Entity[+E <: Entity[E]] {
 
-  def uuidOption: Option[UUID]
+  def uuidOpt: Option[UUID]
 
-  def uuid: UUID = uuidOption.get
+  def uuid: UUID = uuidOpt.get
 
-  def withUuid(uuid: UUID): T
+  def withUuid(uuid: UUID): E
 
 }
