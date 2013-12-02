@@ -6,6 +6,7 @@ import landscape.serialization.EntitySerializer
 import com.netflix.astyanax.{Keyspace, MutationBatch}
 import scala.util.{Failure, Success}
 import landscape.common.Logging
+import com.eaio.uuid.UUID
 
 /**
  * author mikwie
@@ -55,18 +56,23 @@ case class ViewBuilder[E <: Entity[E], K, C](keyspace: Keyspace,
                                      columnNameMapperOpt: Option[E => Seq[C]] = None) {
 
 
+  def withColumnFamily(columnFamily: ColumnFamily[K, C]): ViewBuilder[E, K, C] = {
+    copy(columnFamilyOpt = Some(columnFamily))
+  }
 
-  def withColumnFamily(columnFamily: ColumnFamily[K, C]) = copy(columnFamilyOpt = Some(columnFamily))
+  def withRowKeyMapper(mapper: E => Seq[K]): ViewBuilder[E, K, C] = {
+    copy(rowKeyMapperOpt = Some(mapper))
+  }
 
-  def withRowKeyMapper(mapper: E => Seq[K]) = copy(rowKeyMapperOpt = Some(mapper))
-
-  def withSingleRowKeyMapper(mapper: E => K) = {
+  def withSingleRowKeyMapper(mapper: E => K): ViewBuilder[E, K, C] = {
     withRowKeyMapper(entity => Seq(mapper(entity)))
   }
 
-  def withColumNameMapper(mapper: E => Seq[C]) = copy(columnNameMapperOpt = Some(mapper))
+  def withColumNameMapper(mapper: E => Seq[C]): ViewBuilder[E, K, C] = {
+    copy(columnNameMapperOpt = Some(mapper))
+  }
 
-  def withSingleColumnNameMapper(mapper: E => C) = {
+  def withSingleColumnNameMapper(mapper: E => C): ViewBuilder[E, K, C] = {
     withColumNameMapper(entity => Seq(mapper(entity)))
   }
 
@@ -78,5 +84,17 @@ case class ViewBuilder[E <: Entity[E], K, C](keyspace: Keyspace,
     } yield {
       new View[E, K, C](rowKeyMapper, columnNameMapper)(keyspace, columFamily)
     }).getOrElse(throw new IllegalStateException("Not enought arguments to build a view"))
+  }
+}
+
+object ViewBuilder {
+
+  def defaultTimeSeriesViewBuilder[E <: Entity[E]](keyspace: Keyspace, viewName: String): ViewBuilder[E, String, UUID] = {
+    ViewBuilder[E, String, UUID](keyspace).withSingleRowKeyMapper(entity => viewName)
+      .withSingleColumnNameMapper(entity => entity.uuid)
+  }
+
+  def defaultTextSeriesViewBuilder[E <: Entity[E]](keyspace: Keyspace, viewName: String): ViewBuilder[E, String, String] = {
+    ViewBuilder[E, String, String](keyspace).withSingleRowKeyMapper(entity => viewName)
   }
 }

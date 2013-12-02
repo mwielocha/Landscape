@@ -27,6 +27,9 @@ object User {
 
   implicit object UserSerializer extends EntitySerializer[User] {
 
+    import landscape.common.UUIDHelper._
+    import landscape.common.UUIDImplicits._
+
     val mapper = new ObjectMapper() with ScalaObjectMapper
     mapper.registerModule(DefaultScalaModule)
 
@@ -43,13 +46,13 @@ object User {
 
 class EntitySpec extends WordSpec with Matchers {
 
-
+  import landscape.common.UUIDHelper._
 
   "Entity" should {
 
     "set its uuid" in {
 
-      val uuid = UUIDSerializer.generate
+      val uuid = generate
 
       User(None, "John").withUuid(uuid).uuidOpt shouldEqual Some(uuid)
 
