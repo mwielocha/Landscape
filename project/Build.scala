@@ -4,7 +4,7 @@ import Keys._
 object LandscapeBuild extends Build {
 
   val appName         = "Landscape"
-  val appVersion      = "0.0.1-SNAPSHOT"
+  val appVersion      = "1.0.0-SNAPSHOT"
 
   object Version {
     val astyanax = "1.56.44"
@@ -26,6 +26,7 @@ object LandscapeBuild extends Build {
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     version := appVersion,
+    organization := "landscape",
     exportJars := true,
     scalaVersion        := Version.scala,
     javacOptions ++= Seq("-source", "1.6") ++ Seq("-target", "1.6"),
