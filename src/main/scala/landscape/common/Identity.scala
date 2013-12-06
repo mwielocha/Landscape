@@ -31,4 +31,10 @@ object DefaultIdentityImplicits {
   }
 
   implicit class OptionIdentity[T](val value: Option[T]) extends Identity[Option[T]]
+
+  implicit def defaultEqual[X] = new Equal[X] {
+    def isEqual(left: X, right: X): Boolean = left == right
+  }
+
+  implicit class DefaultIdentity[X](val value: X) extends Identity[X]
 }
