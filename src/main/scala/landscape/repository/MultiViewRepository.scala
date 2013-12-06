@@ -95,7 +95,7 @@ abstract class MultiViewRepository[E <: Entity[E]](keyspace: Keyspace, storageCf
     storageCf(uuid -> storageColumnName).get match {
       case Success(result) => result.getResult.map[String, E](value => serializer.deserialize(value))
       case Failure(throwable) => {
-        logger.debug(s"Error on entity fetch from storage, cause: ${throwable.getMessage}")
+        logger.trace(s"Error on entity fetch from storage, cause: ${throwable.getMessage}")
         None
       }
     }
