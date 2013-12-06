@@ -10,29 +10,41 @@ import landscape.serialization.EntitySerializer
 import landscape.view.View
 import scala.util.{Failure, Success}
 import landscape.common.{UUIDHelper, UUIDSerializer, Logging}
+import com.google.common.collect.ImmutableMap
+import scala.collection.JavaConversions._
 
 /**
  * author mikwie
  *
  */
-trait MultiViewRepository[E <: Entity[E]] extends Logging {
+abstract class MultiViewRepository[E <: Entity[E]](keyspace: Keyspace, storageCfName: String, createStorageCf: Boolean = true) extends Logging {
 
   import scalastyanax.Scalastyanax._
-
-  def columnFamilyName: String
 
   def views: Seq[View[E, _, _]]
 
   protected[MultiViewRepository] val storageColumnName = "entity"
 
   protected[MultiViewRepository] val storageCf = new ColumnFamily[UUID, String](
-    columnFamilyName,
+    storageCfName,
     UUIDSerializer.instance,
     StringSerializer.get(),
     StringSerializer.get()
   )
 
-  implicit val keyspace: Keyspace
+  implicit val implicitKeyspace = keyspace
+
+  if(createStorageCf) {
+    storageCf.create(
+      "default_validation_class" -> "UTF8Type",
+      "key_validation_class" -> "TimeUUIDType",
+      "comparator_type" -> "UTF8Type")
+  }
+
+  def truncate {
+    views.foreach(_.truncate)
+    keyspace.truncateColumnFamily(storageCf)
+  }
 
   def update(entity: E)(implicit serializer: EntitySerializer[E]): E = {
 
@@ -83,7 +95,7 @@ trait MultiViewRepository[E <: Entity[E]] extends Logging {
     storageCf(uuid -> storageColumnName).get match {
       case Success(result) => result.getResult.map[String, E](value => serializer.deserialize(value))
       case Failure(throwable) => {
-        logger.warn(s"Error on entity fetch from storage, cause: ${throwable.getMessage}")
+        logger.debug(s"Error on entity fetch from storage, cause: ${throwable.getMessage}")
         None
       }
     }

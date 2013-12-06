@@ -4,7 +4,7 @@ import Keys._
 object LandscapeBuild extends Build {
 
   val appName         = "Landscape"
-  val appVersion      = "1.0.1-SNAPSHOT"
+  val appVersion      = "1.0.3-SNAPSHOT"
 
   object Version {
     val astyanax = "1.56.44"
