@@ -16,7 +16,7 @@ object LandscapeBuild extends Build {
     "com.netflix.astyanax" % "astyanax-core" % Version.astyanax /*exclude("org.slf4j", "slf4j-log4j12")*/,
     "com.netflix.astyanax" % "astyanax-thrift" % Version.astyanax exclude("javax.servlet", "servlet-api"),
     "com.netflix.astyanax" % "astyanax-entity-mapper" % Version.astyanax /*exclude("org.slf4j", "slf4j-log4j12")*/,
-    "scalastyanax" %% "scalastyanax" % "2.1.2-SNAPSHOT"
+    "scalastyanax" %% "scalastyanax" % "2.2.1-SNAPSHOT"
   )
 
   val testDependencies = Seq(
