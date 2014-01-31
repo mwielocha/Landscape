@@ -4,7 +4,7 @@ import Keys._
 object LandscapeBuild extends Build {
 
   val appName         = "Landscape"
-  val appVersion      = "1.0.3-SNAPSHOT"
+  val appVersion      = "1.1.0-SNAPSHOT"
 
   object Version {
     val astyanax = "1.56.44"
@@ -16,7 +16,7 @@ object LandscapeBuild extends Build {
     "com.netflix.astyanax" % "astyanax-core" % Version.astyanax /*exclude("org.slf4j", "slf4j-log4j12")*/,
     "com.netflix.astyanax" % "astyanax-thrift" % Version.astyanax exclude("javax.servlet", "servlet-api"),
     "com.netflix.astyanax" % "astyanax-entity-mapper" % Version.astyanax /*exclude("org.slf4j", "slf4j-log4j12")*/,
-    "scalastyanax" %% "scalastyanax" % "2.2.1-SNAPSHOT"
+    "scalastyanax" %% "scalastyanax" % "2.3.0-SNAPSHOT"
   )
 
   val testDependencies = Seq(
