@@ -7,8 +7,6 @@ import com.netflix.astyanax.{Keyspace, MutationBatch}
 import scala.util.{Failure, Success}
 import landscape.common.Logging
 import com.eaio.uuid.UUID
-import scalastyanax.RangeQuery
-import reflect.runtime.universe._
 
 /**
  * author mikwie
@@ -51,7 +49,7 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
     }
   }
 
-  def findByRange(rowKey: K, column: Option[C], limit: Int)(implicit serializer: EntitySerializer[E], typeTagK: TypeTag[K], typeTagC: TypeTag[C]): Iterable[E] = {
+  def findByRange(rowKey: K, column: Option[C], limit: Int)(implicit serializer: EntitySerializer[E], manifestK: Manifest[K], manifestC: Manifest[C]): Iterable[E] = {
     viewCf(rowKey -> from[C](column).take(limit)).get match {
       case Success(result) => result.getResult.flatMapValues[String, E](serializer.deserialize(_))
       case Failure(throwable) => {
