@@ -59,6 +59,16 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
     }
   }
 
+  def findRow(rowKey: K)(implicit serializer: EntitySerializer[E], manifestK: Manifest[K], manifestC: Manifest[C]): Iterable[E] = {
+    viewCf(rowKey).get match {
+      case Success(row) => row.getResult.flatMapValues[String, E](serializer.deserialize(_))
+      case Failure(throwable) => {
+        logger.debug(s"Error on entities fetch from view, cause: ${throwable.getMessage}")
+        Nil
+      }
+    }
+  }
+
   def truncate {
     keyspace.truncateColumnFamily(viewCf)
   }
