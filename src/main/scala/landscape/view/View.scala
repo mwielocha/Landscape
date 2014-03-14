@@ -69,7 +69,7 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
     }
   }
 
-  def foreach(function: Row[K, C] => Boolean): Unit = {
+  def foreach(function: Row[K, C] => Unit): Unit = {
     viewCf.foreach(row => {
       function(row); true
     })
