@@ -1,7 +1,7 @@
 package landscape.view
 
 import landscape.entity.Entity
-import com.netflix.astyanax.model.ColumnFamily
+import com.netflix.astyanax.model.{Row, ColumnFamily}
 import landscape.serialization.EntitySerializer
 import com.netflix.astyanax.{Keyspace, MutationBatch}
 import scala.util.{Failure, Success}
@@ -67,6 +67,12 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
         Nil
       }
     }
+  }
+
+  def foreach(function: Row[K, C] => Boolean): Unit = {
+    viewCf.foreach(row => {
+      function(row); true
+    })
   }
 
   def truncate {
