@@ -17,11 +17,14 @@ import scala.collection.JavaConversions._
  * author mikwie
  *
  */
-abstract class MultiViewRepository[E <: Entity[E]](keyspace: Keyspace, storageCfName: String, createStorageCf: Boolean = true) extends Logging {
+abstract class MultiViewRepository[E <: Entity[E]](defaultKeyspace: Keyspace, storageCfName: String, createStorageCf: Boolean = true) extends Logging {
 
   import scalastyanax.Scalastyanax._
 
   def views: Seq[View[E, _, _]]
+
+  // this is to prevent compilation errors in idea
+  implicit def keyspace: Keyspace = defaultKeyspace
 
   protected[MultiViewRepository] val storageColumnName = "entity"
 
@@ -31,8 +34,6 @@ abstract class MultiViewRepository[E <: Entity[E]](keyspace: Keyspace, storageCf
     StringSerializer.get(),
     StringSerializer.get()
   )
-
-  implicit val implicitKeyspace = keyspace
 
   if(createStorageCf) {
     storageCf.create(
