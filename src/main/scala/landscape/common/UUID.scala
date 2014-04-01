@@ -70,7 +70,9 @@ object UUIDImplicits {
   implicit def java2eaio(uuid: java.util.UUID) = new UUID(uuid.toString)
   implicit def eaio2java(uuid: UUID) = java.util.UUID.fromString(uuid.toString)
 
-  implicit val ordering: Ordering[UUID] = Ordering.by (uuid => (toTime(uuid), uuid.getTime, uuid.getClockSeqAndNode))
+  implicit val ordering: Ordering[UUID] = new Ordering[UUID] {
+    override def compare(x: UUID, y: UUID): Int = x.asJava.compareTo(y.asJava)
+  }
 
   implicit class RichUUID(val uuid: UUID) {
 
@@ -80,10 +82,20 @@ object UUIDImplicits {
 
     def asString = eaio2String(uuid)
 
-    def asJava = java2eaio(uuid)
+    def asJava: java.util.UUID = eaio2java(uuid)
 
   }
 
+  implicit class TimeBasedUUID(val uuid: UUID) {
+
+    def isAfter(other: UUID): Boolean = {
+      ordering.compare(uuid, other) > 0
+    }
+
+    def isBefore(other: UUID): Boolean = {
+      ordering.compare(uuid, other) < 0
+    }
+  }
 }
 
 class UUIDSerializer extends AbstractSerializer[UUID] {

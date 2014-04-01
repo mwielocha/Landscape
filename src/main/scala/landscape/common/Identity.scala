@@ -37,4 +37,5 @@ object DefaultIdentityImplicits {
   }
 
   implicit class DefaultIdentity[X](val value: X) extends Identity[X]
+
 }
