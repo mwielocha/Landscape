@@ -74,7 +74,7 @@ object UUIDImplicits {
     override def compare(x: UUID, y: UUID): Int = x.asJava.compareTo(y.asJava)
   }
 
-  implicit class RichUUID(val uuid: UUID) {
+  implicit class RichTimeBasedUUID(val uuid: UUID) {
 
     def asMilis = toTime(uuid)
 
@@ -83,10 +83,6 @@ object UUIDImplicits {
     def asString = eaio2String(uuid)
 
     def asJava: java.util.UUID = eaio2java(uuid)
-
-  }
-
-  implicit class TimeBasedUUID(val uuid: UUID) {
 
     def isAfter(other: UUID): Boolean = {
       ordering.compare(uuid, other) > 0
