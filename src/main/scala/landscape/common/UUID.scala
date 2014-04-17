@@ -30,8 +30,11 @@ object UUIDHelper {
 
   def fromDateTime(dt: DateTime): UUID = fromTime(dt.getMillis)
 
-  @Deprecated
   def fromTime(timestamp: Long): UUID = {
+    new UUID(createNonUniqueTime(timestamp), UUIDGen.getClockSeqAndNode)
+  }
+
+  def createNonUniqueTime(timestamp: Long): Long = {
     val timeEpoch = (timestamp * 10000) + UUID_EPOCH
     var time = 0L
 
@@ -44,7 +47,11 @@ object UUIDHelper {
     // time hi and version
     time |= 0x1000 | ((timeEpoch >> 48) & 0x0FFF); // version 1
 
-    new UUID(time, UUIDGen.getClockSeqAndNode)
+    time
+  }
+
+  def createNilUUID = {
+    new UUID(createNonUniqueTime(0L), 0)
   }
 
   def fromTimestamp(timestamp: Long): UUID = {
