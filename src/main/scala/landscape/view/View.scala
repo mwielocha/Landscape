@@ -69,6 +69,16 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
     }
   }
 
+  def findRows(rowKeys: Seq[K])(implicit serializer: EntitySerializer[E], manifestK: Manifest[K], manifestC: Manifest[C]): Iterable[E] = {
+    viewCf(rowKeys).get match {
+      case Success(rows) => rows.getResult.flatValues[String].map(serializer.deserialize)
+      case Failure(throwable) => {
+        logger.debug(s"Error on entities fetch from view, cause: ${throwable.getMessage}")
+        Nil
+      }
+    }
+  }
+
   def foreach(function: Row[K, C] => Unit): Unit = {
     viewCf.foreach(row => {
       function(row); true
