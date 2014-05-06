@@ -54,7 +54,7 @@ abstract class MultiViewRepository[E <: Entity[E]](defaultKeyspace: Keyspace, st
     }
 
     find(entity.uuid) match {
-      case Some(previousEntity) => removeFromViews(entity, mutaionBatch)
+      case Some(previousEntity) => removeFromViews(previousEntity, mutaionBatch)
       case None => //nothing to do here...
     }
 
