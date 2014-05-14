@@ -29,12 +29,12 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
   }
 
   def remove(entity: E)(implicit batch: MutationBatch): MutationBatch = {
-    keyspace.withMutationBatch(batch) { implicit batch =>
+    keyspace.withMutationBatch(batch) { implicit mutationBatch =>
       for {
         rowKey <- rowKeyMapper(entity)
         columnName <- columnNameMapper(entity)
       } yield {
-        viewCf --= (rowKey -> columnName)
+        (viewCf --= (rowKey -> columnName))(mutationBatch)
       }
     }
   }

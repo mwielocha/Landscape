@@ -49,16 +49,18 @@ abstract class MultiViewRepository[E <: Entity[E]](defaultKeyspace: Keyspace, st
 
   def update(entity: E)(implicit serializer: EntitySerializer[E]): E = {
 
-    val mutaionBatch = keyspace.newMutationBatch { implicit batch =>
+    val mutationBatch = keyspace.newMutationBatch { implicit batch =>
       storageCf ++= (entity.uuid -> storageColumnName -> serializer.serialize(entity))
     }
 
     find(entity.uuid) match {
-      case Some(previousEntity) => removeFromViews(previousEntity, mutaionBatch)
+      case Some(previousEntity) => removeFromViews(previousEntity, mutationBatch)
       case None => //nothing to do here...
     }
 
-    addToViews(entity, serializer, mutaionBatch).execute
+    mutationBatch.execute()
+
+    addToViews(entity, serializer, keyspace.prepareMutationBatch()).execute()
 
     entity
   }
