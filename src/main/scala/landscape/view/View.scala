@@ -108,12 +108,20 @@ case class ViewBuilder[E <: Entity[E], K, C](keyspace: Keyspace,
     withRowKeyMapper(entity => Seq(mapper(entity)))
   }
 
+  def withOptionalRowKeyMapper(mapper: E => Option[K]): ViewBuilder[E, K, C] = {
+    withRowKeyMapper(entity => mapper(entity).toSeq)
+  }
+
   def withColumNameMapper(mapper: E => Seq[C]): ViewBuilder[E, K, C] = {
     copy(columnNameMapperOpt = Some(mapper))
   }
 
   def withSingleColumnNameMapper(mapper: E => C): ViewBuilder[E, K, C] = {
     withColumNameMapper(entity => Seq(mapper(entity)))
+  }
+
+  def withOptionalColumnNameMapper(mapper: E => Option[C]): ViewBuilder[E, K, C] = {
+    withColumNameMapper(entity => mapper(entity).toSeq)
   }
 
   def build: View[E, K, C] = {

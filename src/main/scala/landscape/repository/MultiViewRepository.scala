@@ -47,7 +47,7 @@ abstract class MultiViewRepository[E <: Entity[E]](defaultKeyspace: Keyspace, st
     keyspace.truncateColumnFamily(storageCf)
   }
 
-  def update(entity: E)(implicit serializer: EntitySerializer[E]): E = {
+  def update(Ventity: E)(implicit serializer: EntitySerializer[E]): E = {
 
     val mutationBatch = keyspace.newMutationBatch { implicit batch =>
       storageCf ++= (entity.uuid -> storageColumnName -> serializer.serialize(entity))
