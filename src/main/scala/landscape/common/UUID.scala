@@ -78,7 +78,9 @@ object UUIDImplicits {
   implicit def eaio2java(uuid: UUID) = java.util.UUID.fromString(uuid.toString)
 
   implicit val ordering: Ordering[UUID] = new Ordering[UUID] {
-    override def compare(x: UUID, y: UUID): Int = x.asJava.compareTo(y.asJava)
+    override def compare(x: UUID, y: UUID): Int = {
+      x.asJava.timestamp.compareTo(y.asJava.timestamp)
+    }
   }
 
   implicit class RichTimeBasedUUID(val uuid: UUID) {
