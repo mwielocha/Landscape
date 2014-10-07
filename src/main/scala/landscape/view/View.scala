@@ -41,7 +41,7 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
   
   def find(rowKey: K, columnName: C)(implicit serializer: EntitySerializer[E]): Option[E] = {
     viewCf(rowKey -> columnName).get match {
-      case Success(result) => result.getResult.map[String, E](serializer.deserialize(_))
+      case Success(result) => result.getResult.map[String, E](serializer.deserialize)
       case Failure(throwable) => {
         logger.debug(s"Error on entity fetch from view, cause: ${throwable.getMessage}")
         None
@@ -51,7 +51,17 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
 
   def findByRange(rowKey: K, column: Option[C], limit: Int)(implicit serializer: EntitySerializer[E], manifestK: Manifest[K], manifestC: Manifest[C]): Iterable[E] = {
     viewCf(rowKey -> from[C](column).take(limit)).get match {
-      case Success(result) => result.getResult.flatMapValues[String, E](serializer.deserialize(_))
+      case Success(result) => result.getResult.flatMapValues[String, E](serializer.deserialize)
+      case Failure(throwable) => {
+        logger.debug(s"Error on entities fetch from view, cause: ${throwable.getMessage}")
+        Nil
+      }
+    }
+  }
+
+  def findByRange(rowKey: K, column: Option[C])(implicit serializer: EntitySerializer[E], manifestK: Manifest[K], manifestC: Manifest[C]): Iterable[E] = {
+    viewCf(rowKey -> from[C](column)).get match {
+      case Success(result) => result.getResult.flatMapValues[String, E](serializer.deserialize)
       case Failure(throwable) => {
         logger.debug(s"Error on entities fetch from view, cause: ${throwable.getMessage}")
         Nil
@@ -61,7 +71,7 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
 
   def findRow(rowKey: K)(implicit serializer: EntitySerializer[E], manifestK: Manifest[K], manifestC: Manifest[C]): Iterable[E] = {
     viewCf(rowKey).get match {
-      case Success(row) => row.getResult.flatMapValues[String, E](serializer.deserialize(_))
+      case Success(row) => row.getResult.flatMapValues[String, E](serializer.deserialize)
       case Failure(throwable) => {
         logger.debug(s"Error on entities fetch from view, cause: ${throwable.getMessage}")
         Nil
