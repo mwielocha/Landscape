@@ -49,6 +49,16 @@ class View[E <: Entity[E], K, C](val rowKeyMapper: E => Seq[K], columnNameMapper
     }
   }
 
+  def find(rowKey: K, columnNames: Seq[C])(implicit serializer: EntitySerializer[E]): Iterable[E] = {
+    viewCf(rowKey -> columnNames).get match {
+      case Success(result) => result.getResult.flatMapValues[String, E](serializer.deserialize)
+      case Failure(throwable) => {
+        logger.debug(s"Error on entity fetch from view, cause: ${throwable.getMessage}")
+        Nil
+      }
+    }
+  }
+
   def findByRange(rowKey: K, column: Option[C], limit: Int)(implicit serializer: EntitySerializer[E], manifestK: Manifest[K], manifestC: Manifest[C]): Iterable[E] = {
     viewCf(rowKey -> from[C](column).take(limit)).get match {
       case Success(result) => result.getResult.flatMapValues[String, E](serializer.deserialize)
